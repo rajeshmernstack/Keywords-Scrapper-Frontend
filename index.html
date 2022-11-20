@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.0.0/mdb.min.css" rel="stylesheet" />
+    <title>Keywords Scrapper</title>
+    <style>
+        .scrollit {
+            overflow-y: scroll;
+            height: 600px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <!-- Container wrapper -->
+        <div class="container">
+            <!-- Navbar brand -->
+            <a class="navbar-brand me-2" href="/">
+                <img src="./logo.png" height="60" alt="logo" loading="lazy" style="margin-top: -1px;" />
+            </a>
+
+            <!-- Toggle button -->
+            <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
+                data-mdb-target="#navbarButtonsExample" aria-controls="navbarButtonsExample" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Collapsible wrapper -->
+            <div class="collapse navbar-collapse" id="navbarButtonsExample">
+                <!-- Left links -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Long Tail Keywords Extractors</a>
+                    </li>
+                </ul>
+                <!-- Left links -->
+
+                <div class="d-flex align-items-center">
+
+                    <a class="btn btn-dark px-3" href="https://github.com/rajeshmernstack/Keywords-Scrapper-Frontend"
+                        role="button" target="_blank"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <!-- Collapsible wrapper -->
+        </div>
+        <!-- Container wrapper -->
+    </nav>
+    <!-- Navbar -->
+
+    <div class="container mt-2">
+        <div class="row">
+            <div class="col-md-4 offset-md-4">
+                <form id="seed-form">
+                    <div class=" mb-4 text-center">
+
+                        <img src="keyword.png" alt="logo" height="60">
+                    </div>
+                    <div class="form-outline mb-4">
+                        <input type="text" name="myseed" id="myseed" class="form-control" />
+                        <label class="form-label" for="myseed">Enter Seed Keyword</label>
+                    </div>
+
+                    <!-- Submit button -->
+                    <button type="submit" id="submit-btn" class="btn btn-primary btn-block">Search Long Tail Keyword</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4 scrollit mb-3">
+        <div class="row">
+            <div class="col-md-3 offset-md-9">
+
+            <button class="btn btn-success" id="export-to-csv">Export</button>
+            </div>
+        </div>
+        <table class="table text-center">
+            <thead class="">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Long Tail Keyword</th>
+                </tr>
+            </thead>
+            <tbody id="keywords-table">
+
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"
+        integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- MDB -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.0.0/mdb.min.js"></script>
+    <script>
+
+        $('#export-to-csv').click(function () {
+
+            var titles = [];
+            var data = [];
+
+            $('.table tr').each(function () {
+                data.push($(this));
+            });
+
+            csv_data = []
+
+            data.forEach(function (item, index) {
+                td = item[0].children
+                for (i = 0; i < td.length; i++) {
+
+                    csv_data.push(td[i].innerText)
+                }
+
+                csv_data.push('\r\n')
+            })
+
+            var downloadLink = document.createElement("a");
+            var blob = new Blob(["\ufeff", csv_data]);
+            var url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = "longtailkeywords.csv";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+        })
+
+        $(document).on('submit', '#seed-form', function (e) {
+            e.preventDefault();
+            $('#submit-btn').text("Loading...")
+            $("#keywords-table").empty();
+
+            let seed = $('#myseed').val();
+
+            $.get('https://keywords-scrapper.herokuapp.com/keyword/' + seed, (resp, status) => {
+                if (status === 'success') {
+
+                    $('#submit-btn').text("Search Long Tail Keyword")
+                    let rows = "";
+                    resp.data.forEach((item, index) => {
+                        rows += `<tr><td>${index + 1}</td><td>${item}</td></tr>`
+                        $('#keywords-table').html(rows)
+                    });
+                }
+            })
+        })
+
+    </script>
+</body>
+
+</html>
